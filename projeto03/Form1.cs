@@ -55,15 +55,19 @@ namespace projeto03
                             ELSE 5 END AS cat, 
                             CASE WHEN(ceil(stock / (Venda / Dias_Hab))) >= 14 
                                   AND(ceil(stock / (Venda / Dias_Hab))) <= 18 THEN 0 
-                            ELSE(14 - (ceil(stock / (Venda / Dias_Hab)))) * ceil(Venda / Dias_Hab) END AS rep 
-                            FROM(SELECT  atendimentos.polo, COUNT(*) as venda, COUNT(distinct fecha) as dias_hab, 
+                            ELSE(14 - (ceil(stock / (Venda / Dias_Hab)))) * 
+                                       ceil(Venda / Dias_Hab) END AS rep 
+                            FROM(SELECT  atendimentos.polo, COUNT(*) as venda, 
+                                         COUNT(distinct fecha) as dias_hab, 
                                          estoque.stock FROM public.atendimentos 
                                 JOIN estoque ON(atendimentos.polo = estoque.polo) 
                                      WHERE estoque.polo = '" + cboPolos.Text + "'"; 
-            strSql = strSql + "GROUP BY atendimentos.polo, estoque.stock) as t";
-            NpgsqlCommand cmd = new NpgsqlCommand();
-            cmd.CommandText = strSql;
-            cmd.Connection = conex;
+            strSql += "GROUP BY atendimentos.polo, estoque.stock) as t";
+            NpgsqlCommand cmd = new()
+            {
+                CommandText = strSql,
+                Connection = conex
+            };
             NpgsqlDataReader dr = cmd.ExecuteReader();
             dr.Read();
             tbStock.Text = dr[1].ToString();
